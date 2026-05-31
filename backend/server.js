@@ -22,13 +22,16 @@ async function initDatabase() {
   const client = await pool.connect();
   try {
     // Store Items table
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS store_items (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        price REAL NOT NULL
-      )
-    `);
+await client.query(`
+  CREATE TABLE IF NOT EXISTS factory_items (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    unit TEXT NOT NULL,
+    quantity REAL DEFAULT 0,
+    min_quantity REAL DEFAULT 0,
+    price REAL DEFAULT 0
+  )
+`);
 
     // Factory Items table
     await client.query(`
@@ -367,28 +370,142 @@ app.delete('/api/expenses/:id', async (req, res) => {
 });
 
 // Get daily summary
+// Get daily summary with factory cost
 app.get('/api/summary/:date', async (req, res) => {
   const date = req.params.date;
   try {
-    const sales = await pool.query(
-      'SELECT COALESCE(SUM(total), 0) as total_sales FROM daily_sales WHERE date = $1',
-      [date]
-    );
-    const expenses = await pool.query(
-      'SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses WHERE date = $1',
-      [date]
-    );
+    const sales = await pool.query('SELECT COALESCE(SUM(total), 0) as total_sales FROM daily_sales WHERE date = $1', [date]);
+    const expenses = await pool.query('SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses WHERE date = $1', [date]);
+    const factoryCost = await pool.query(`
+      SELECT COALESCE(SUM(fi.price * fu.quantity_used), 0) as factory_cost
+      FROM factory_usage fu
+      JOIN factory_items fi ON fu.factory_item_id = fi.id
+      WHERE fu.date = $1
+    `, [date]);
     
-    const totalSales = sales.rows[0].total_sales || 0;
-    const totalExpenses = expenses.rows[0].total_expenses || 0;
+    const totalSales = sales.rows[0]?.total_sales || 0;
+    const totalExpenses = expenses.rows[0]?.total_expenses || 0;
+    const totalFactoryCost = factoryCost.rows[0]?.factory_cost || 0;
     
     res.json({
       total_sales: totalSales,
       total_expenses: totalExpenses,
-      net: totalSales - totalExpenses
+      factory_cost: totalFactoryCost,
+      net: totalSales - totalExpenses - totalFactoryCost
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ total_sales: 0, total_expenses: 0, factory_cost: 0, net: 0 });
+  }
+});
+
+// Get monthly report with daily breakdown
+app.get('/api/monthly-report/:year/:month', async (req, res) => {
+  const { year, month } = req.params;
+  const datePrefix = `${year}-${month.padStart(2, '0')}`;
+  
+  try {
+    // Get all dates in month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const allDates = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      allDates.push(`${datePrefix}-${String(i).padStart(2, '0')}`);
+    }
+    
+    // Get daily sales
+    const salesData = await pool.query(`
+      SELECT date, COALESCE(SUM(total), 0) as daily_sales
+      FROM daily_sales 
+      WHERE date LIKE $1
+      GROUP BY date
+    `, [`${datePrefix}%`]);
+    
+    // Get daily expenses
+    const expensesData = await pool.query(`
+      SELECT date, COALESCE(SUM(amount), 0) as daily_expenses
+      FROM expenses 
+      WHERE date LIKE $1
+      GROUP BY date
+    `, [`${datePrefix}%`]);
+    
+    // Get daily factory costs
+    const factoryData = await pool.query(`
+      SELECT fu.date, COALESCE(SUM(fi.price * fu.quantity_used), 0) as daily_cost
+      FROM factory_usage fu
+      JOIN factory_items fi ON fu.factory_item_id = fi.id
+      WHERE fu.date LIKE $1
+      GROUP BY fu.date
+    `, [`${datePrefix}%`]);
+    
+    // Create maps
+    const salesMap = new Map();
+    salesData.rows.forEach(s => salesMap.set(s.date, s.daily_sales));
+    
+    const expensesMap = new Map();
+    expensesData.rows.forEach(e => expensesMap.set(e.date, e.daily_expenses));
+    
+    const factoryMap = new Map();
+    factoryData.rows.forEach(f => factoryMap.set(f.date, f.daily_cost));
+    
+    // Build daily data
+    const dailyData = allDates.map(date => {
+      const sales = salesMap.get(date) || 0;
+      const expenses = expensesMap.get(date) || 0;
+      const factoryCost = factoryMap.get(date) || 0;
+      return {
+        date: date,
+        sales: sales,
+        expenses: expenses,
+        factory_cost: factoryCost,
+        net: sales - expenses - factoryCost
+      };
+    }).filter(d => d.sales > 0 || d.expenses > 0 || d.factory_cost > 0);
+    
+    // Calculate totals
+    const totalSales = dailyData.reduce((sum, d) => sum + d.sales, 0);
+    const totalExpenses = dailyData.reduce((sum, d) => sum + d.expenses, 0);
+    const totalFactoryCost = dailyData.reduce((sum, d) => sum + d.factory_cost, 0);
+    
+    // Get top selling items
+    const topItems = await pool.query(`
+      SELECT si.name, COALESCE(SUM(ds.quantity), 0) as total_quantity, COALESCE(SUM(ds.total), 0) as total_revenue
+      FROM daily_sales ds
+      JOIN store_items si ON ds.store_item_id = si.id
+      WHERE ds.date LIKE $1
+      GROUP BY ds.store_item_id, si.name
+      ORDER BY total_revenue DESC
+      LIMIT 5
+    `, [`${datePrefix}%`]);
+    
+    // Get top used factory items
+    const topFactory = await pool.query(`
+      SELECT fi.name, fi.unit, COALESCE(SUM(fu.quantity_used), 0) as total_used
+      FROM factory_usage fu
+      JOIN factory_items fi ON fu.factory_item_id = fi.id
+      WHERE fu.date LIKE $1
+      GROUP BY fu.factory_item_id, fi.name, fi.unit
+      ORDER BY total_used DESC
+      LIMIT 5
+    `, [`${datePrefix}%`]);
+    
+    res.json({
+      daily_data: dailyData,
+      summary: {
+        total_sales: totalSales,
+        total_expenses: totalExpenses,
+        total_factory_cost: totalFactoryCost,
+        net_profit: totalSales - totalExpenses - totalFactoryCost
+      },
+      top_selling_items: topItems.rows,
+      top_used_factory_items: topFactory.rows
+    });
+  } catch (err) {
+    console.error('Monthly report error:', err);
+    res.json({
+      daily_data: [],
+      summary: { total_sales: 0, total_expenses: 0, total_factory_cost: 0, net_profit: 0 },
+      top_selling_items: [],
+      top_used_factory_items: []
+    });
   }
 });
 
