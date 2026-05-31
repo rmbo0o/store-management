@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1e3c72">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>مدير المتجر</title>
+    <title>مدير المتجر والمصنع</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,12 +17,10 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
             background: #f5f7fb;
             padding-bottom: 70px;
         }
-
         /* Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
@@ -37,7 +35,6 @@
             border-radius: 20px 20px 0 0;
             z-index: 1000;
         }
-
         .nav-item {
             text-align: center;
             flex: 1;
@@ -46,28 +43,19 @@
             padding: 5px;
             border-radius: 10px;
         }
-
         .nav-item i {
             font-size: 24px;
             display: block;
             margin-bottom: 4px;
         }
-
         .nav-item span {
             font-size: 11px;
             font-weight: 500;
         }
-
         .nav-item.active {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
         }
-
-        .nav-item:active {
-            transform: scale(0.95);
-        }
-
-        /* Header */
         .app-header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
@@ -75,19 +63,6 @@
             border-radius: 0 0 25px 25px;
             margin-bottom: 20px;
         }
-
-        .app-header h4 {
-            margin: 0;
-            font-size: 1.3rem;
-        }
-
-        .app-header p {
-            margin: 5px 0 0;
-            opacity: 0.9;
-            font-size: 0.8rem;
-        }
-
-        /* Cards */
         .card {
             border: none;
             border-radius: 20px;
@@ -95,15 +70,12 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             overflow: hidden;
         }
-
         .card-header {
             background: white;
             border-bottom: 1px solid #eee;
             padding: 15px;
             font-weight: bold;
         }
-
-        /* Summary Cards */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -111,7 +83,6 @@
             padding: 0 12px;
             margin-bottom: 20px;
         }
-
         .summary-item {
             background: white;
             border-radius: 20px;
@@ -119,25 +90,20 @@
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-
         .summary-item h6 {
             color: #666;
             font-size: 0.75rem;
             margin-bottom: 8px;
         }
-
         .summary-item h3 {
             margin: 0;
             font-size: 1.5rem;
             font-weight: bold;
         }
-
         .summary-item.sales { border-right: 4px solid #4facfe; }
         .summary-item.profit { border-right: 4px solid #4caf50; }
         .summary-item.expenses { border-right: 4px solid #f5576c; }
         .summary-item.factory { border-right: 4px solid #fa709a; }
-
-        /* Product Items */
         .product-item {
             background: white;
             padding: 15px;
@@ -147,39 +113,29 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.2s;
         }
-
-        .product-item:active {
-            transform: scale(0.98);
-        }
-
         .product-info h4 {
             font-size: 1rem;
             margin-bottom: 4px;
         }
-
         .product-info p {
             color: #666;
             font-size: 0.85rem;
             margin: 0;
         }
-
         .product-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
         .quantity-input {
-            width: 60px;
+            width: 70px;
             text-align: center;
             border: 1px solid #ddd;
             border-radius: 10px;
             padding: 8px;
             font-size: 1rem;
         }
-
         .save-btn {
             background: #4caf50;
             color: white;
@@ -189,54 +145,41 @@
             font-size: 0.85rem;
             cursor: pointer;
         }
-
-        .save-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Tables for mobile */
         .table-container {
             overflow-x: auto;
             margin: 12px;
         }
-
         .mobile-table {
             width: 100%;
             background: white;
             border-radius: 15px;
             overflow: hidden;
         }
-
         .mobile-table th, .mobile-table td {
             padding: 12px;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
-
-        /* Forms */
         .form-container {
             padding: 15px;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
             font-size: 0.85rem;
         }
-
-        .form-control {
+        .form-control, select.form-control {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 12px;
             font-size: 1rem;
+            background: white;
         }
-
         .btn {
             padding: 12px;
             border-radius: 12px;
@@ -245,29 +188,23 @@
             border: none;
             cursor: pointer;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
         }
-
         .btn-danger {
             background: #f5576c;
             color: white;
         }
-
         .btn-success {
             background: #4caf50;
             color: white;
         }
-
         .btn-sm {
             padding: 8px 12px;
             font-size: 0.85rem;
             width: auto;
         }
-
-        /* Date selector */
         .date-selector {
             display: flex;
             align-items: center;
@@ -276,90 +213,115 @@
             background: white;
             margin: 12px;
             border-radius: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-
         .date-selector button {
-            background: none;
+            background: #1e3c72;
+            color: white;
             border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 8px 12px;
-        }
-
-        .date-selector input {
-            border: 1px solid #ddd;
             border-radius: 10px;
-            padding: 8px;
-            font-size: 0.9rem;
+            padding: 8px 12px;
+            cursor: pointer;
         }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 50px;
+        .month-selector {
+            background: white;
+            padding: 12px;
+            margin: 12px;
+            border-radius: 15px;
         }
-
-        /* Alert */
+        .month-selector select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
         .alert {
             margin: 12px;
             padding: 12px;
             border-radius: 12px;
             font-size: 0.85rem;
         }
-
-        /* Badge */
+        .alert-warning {
+            background: #fff3cd;
+            border-right: 4px solid #ffc107;
+        }
+        .alert-success {
+            background: #d4edda;
+            border-right: 4px solid #28a745;
+        }
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
         }
-
-        /* Spacing */
-        .mt-2 { margin-top: 8px; }
-        .mt-3 { margin-top: 12px; }
-        .mb-2 { margin-bottom: 8px; }
+        .badge-success { background: #4caf50; color: white; }
+        .badge-warning { background: #ffc107; color: #856404; }
+        .badge-danger { background: #f5576c; color: white; }
+        .stock-info {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .low-stock {
+            color: #f5576c;
+            font-weight: bold;
+        }
+        .profit-positive {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .profit-negative {
+            color: #f5576c;
+            font-weight: bold;
+        }
         .text-center { text-align: center; }
         .text-muted { color: #666; }
+        .mt-2 { margin-top: 8px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mt-3 { margin-top: 12px; }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Header -->
         <div class="app-header">
             <h4>🏪 مدير المتجر والمصنع</h4>
             <p>نظام إدارة المبيعات والمخزون</p>
         </div>
 
-        <!-- Main Content -->
-        <div v-if="loading" class="loading">
+        <div v-if="loading" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
             <p class="mt-2">جاري التحميل...</p>
         </div>
 
         <div v-else>
-            <!-- Sales Page -->
+            <!-- ==================== SALES PAGE ==================== -->
             <div v-if="currentPage === 'sales'">
-                <!-- Date Selector -->
                 <div class="date-selector">
-                    <button @click="changeDate(-1)">▶</button>
-                    <input type="date" v-model="currentDate" @change="loadData">
-                    <button @click="changeDate(1)">◀</button>
+                    <button @click="changeDate(-1)">▶ السابق</button>
+                    <input type="date" v-model="currentDate" @change="loadData" class="form-control" style="width: auto;">
+                    <button @click="changeDate(1)">التالي ◀</button>
                     <button @click="setToday" class="btn-primary btn-sm" style="width: auto;">اليوم</button>
                 </div>
 
-                <!-- Summary Cards -->
                 <div class="summary-grid">
                     <div class="summary-item sales">
-                        <h6>💰 المبيعات</h6>
-                        <h3>{{ summary.total_sales.toFixed(0) }} ₴</h3>
+                        <h6>💰 إجمالي المبيعات</h6>
+                        <h3>{{ summary.total_sales.toFixed(2) }} ₴</h3>
+                    </div>
+                    <div class="summary-item expenses">
+                        <h6>📝 المصروفات</h6>
+                        <h3>{{ summary.total_expenses.toFixed(2) }} ₴</h3>
+                    </div>
+                    <div class="summary-item factory">
+                        <h6>🏭 تكلفة المصنع</h6>
+                        <h3>{{ summary.factory_cost.toFixed(2) }} ₴</h3>
                     </div>
                     <div class="summary-item profit">
                         <h6>💵 صافي الربح</h6>
-                        <h3>{{ summary.net.toFixed(0) }} ₴</h3>
+                        <h3 :class="summary.net >= 0 ? 'profit-positive' : 'profit-negative'">{{ summary.net.toFixed(2) }} ₴</h3>
                     </div>
                 </div>
 
-                <!-- Products List -->
                 <div class="card">
                     <div class="card-header">📝 أدخل الكميات المباعة</div>
                     <div class="card-body" style="padding: 0;">
@@ -371,7 +333,7 @@
                             <div v-for="item in dailyItems" :key="item.id" class="product-item">
                                 <div class="product-info">
                                     <h4>{{ item.name }}</h4>
-                                    <p>{{ item.price.toFixed(2) }} ₴</p>
+                                    <p>{{ item.price.toFixed(2) }} ₴ للقطعة</p>
                                 </div>
                                 <div class="product-controls">
                                     <input type="number" v-model.number="item.quantity" 
@@ -383,49 +345,61 @@
                     </div>
                 </div>
 
-                <!-- Today's Sales Record -->
                 <div class="card">
                     <div class="card-header">📋 سجل مبيعات اليوم</div>
                     <div class="table-container">
                         <table class="mobile-table">
-                            <thead style="background: #f5f7fb;">
-                                <tr><th>المنتج</th><th>الكمية</th><th>الإجمالي</th></tr>
-                            </thead>
+                            <thead style="background: #f5f7fb;"><tr><th>المنتج</th><th>الكمية</th><th>الإجمالي</th></tr></thead>
                             <tbody>
-                                <tr v-for="sale in todaySales" :key="sale.id">
-                                    <td>{{ sale.item_name }}</td>
-                                    <td>{{ sale.quantity }}</td>
-                                    <td>{{ sale.total.toFixed(2) }} ₴</td>
-                                </tr>
-                                <tr v-if="todaySales.length === 0">
-                                    <td colspan="3" class="text-center text-muted">لا توجد مبيعات</td>
-                                </tr>
+                                <tr v-for="sale in todaySales" :key="sale.id"><td>{{ sale.item_name }}</td><td>{{ sale.quantity }}</td><td>{{ sale.total.toFixed(2) }} ₴</td></tr>
+                                <tr v-if="todaySales.length === 0"><td colspan="3" class="text-center text-muted">لا توجد مبيعات</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Factory Page -->
+            <!-- ==================== FACTORY PAGE ==================== -->
             <div v-if="currentPage === 'factory'">
-                <div class="alert alert-warning" v-if="lowStockItems.length > 0">
-                    ⚠️ تنبيه: {{ lowStockItems.length }} مادة منخفضة!
+                <div v-if="lowStockItems.length > 0" class="alert alert-warning">
+                    ⚠️ <strong>تنبيه: المواد التالية منخفضة!</strong>
+                    <ul class="mb-0 mt-2">
+                        <li v-for="item in lowStockItems" :key="item.id">{{ item.name }}: {{ item.quantity }} {{ item.unit }} (الحد الأدنى: {{ item.min_quantity }})</li>
+                    </ul>
+                </div>
+
+                <!-- Show remaining stock -->
+                <div class="card">
+                    <div class="card-header">📦 المخزون المتبقي</div>
+                    <div class="table-container">
+                        <table class="mobile-table">
+                            <thead style="background: #f5f7fb;"><tr><th>المادة</th><th>الكمية المتبقية</th><th>الوحدة</th><th>الحد الأدنى</th></tr></thead>
+                            <tbody>
+                                <tr v-for="item in factoryItems" :key="item.id" :class="item.quantity <= item.min_quantity ? 'table-warning' : ''">
+                                    <td>{{ item.name }}</td>
+                                    <td><strong :class="item.quantity <= item.min_quantity ? 'low-stock' : ''">{{ item.quantity }}</strong></td>
+                                    <td>{{ item.unit }}</td>
+                                    <td>{{ item.min_quantity }}</td>
+                                </tr>
+                                <tr v-if="factoryItems.length === 0"><td colspan="4" class="text-center text-muted">لا توجد مواد</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-header">🏭 استخدامات المصنع</div>
+                    <div class="card-header">🏭 استخدامات المصنع اليومية</div>
                     <div class="card-body" style="padding: 0;">
                         <div class="date-selector" style="margin: 0 0 10px 0;">
-                            <input type="date" v-model="factoryDate" @change="loadFactoryUsage" style="width: 100%;">
+                            <input type="date" v-model="factoryDate" @change="loadFactoryUsage" class="form-control">
                         </div>
                         <div v-for="item in dailyFactoryItems" :key="item.id" class="product-item">
                             <div class="product-info">
                                 <h4>{{ item.name }}</h4>
-                                <p>المتبقي: {{ item.current_quantity }} {{ item.unit }}</p>
+                                <p>المتبقي: <strong :class="item.current_quantity <= 5 ? 'low-stock' : ''">{{ item.current_quantity }} {{ item.unit }}</strong></p>
                             </div>
                             <div class="product-controls">
-                                <input type="number" v-model.number="item.quantity_used" 
-                                       class="quantity-input" :max="item.current_quantity" placeholder="الكمية">
+                                <input type="number" v-model.number="item.quantity_used" class="quantity-input" :max="item.current_quantity" placeholder="الكمية">
                                 <button @click="recordFactoryUsage(item)" class="save-btn">تسجيل</button>
                             </div>
                         </div>
@@ -435,31 +409,41 @@
                 <div class="card">
                     <div class="card-header">➕ إضافة مادة جديدة</div>
                     <div class="form-container">
+                        <div class="form-group"><input v-model="newFactoryItem.name" class="form-control" placeholder="اسم المادة"></div>
                         <div class="form-group">
-                            <input v-model="newFactoryItem.name" class="form-control" placeholder="اسم المادة">
+                            <select v-model="newFactoryItem.unit" class="form-control">
+                                <option value="قطعة">قطعة</option><option value="كيلو">كيلو</option>
+                                <option value="علبة">علبة</option><option value="كرتونة">كرتونة</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <input v-model="newFactoryItem.unit" class="form-control" placeholder="الوحدة (قطعة، كيلو، علبة)">
-                        </div>
-                        <div class="form-group">
-                            <input type="number" v-model.number="newFactoryItem.quantity" class="form-control" placeholder="الكمية الأولية">
-                        </div>
+                        <div class="form-group"><input type="number" v-model.number="newFactoryItem.quantity" class="form-control" placeholder="الكمية الأولية"></div>
+                        <div class="form-group"><input type="number" v-model.number="newFactoryItem.min_quantity" class="form-control" placeholder="الحد الأدنى للتنبيه"></div>
                         <button @click="addFactoryItem" class="btn-primary">➕ إضافة</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">📦 إضافة مخزون (شراء)</div>
+                    <div class="form-container">
+                        <div class="form-group">
+                            <select v-model="addStockData.factory_item_id" class="form-control">
+                                <option value="">اختر المادة</option>
+                                <option v-for="item in factoryItems" :value="item.id">{{ item.name }} (المتبقي: {{ item.quantity }} {{ item.unit }})</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><input type="number" v-model.number="addStockData.quantity" class="form-control" placeholder="الكمية المضافة"></div>
+                        <button @click="addStock" class="btn-success">➕ إضافة مخزون</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Items Page -->
+            <!-- ==================== STORE ITEMS PAGE ==================== -->
             <div v-if="currentPage === 'items'">
                 <div class="card">
                     <div class="card-header">➕ إضافة منتج جديد</div>
                     <div class="form-container">
-                        <div class="form-group">
-                            <input v-model="newItem.name" class="form-control" placeholder="اسم المنتج">
-                        </div>
-                        <div class="form-group">
-                            <input type="number" v-model.number="newItem.price" class="form-control" placeholder="السعر">
-                        </div>
+                        <div class="form-group"><input v-model="newItem.name" class="form-control" placeholder="اسم المنتج"></div>
+                        <div class="form-group"><input type="number" v-model.number="newItem.price" class="form-control" placeholder="سعر البيع"></div>
                         <button @click="addItem" class="btn-primary">➕ إضافة</button>
                     </div>
                 </div>
@@ -468,13 +452,10 @@
                     <div class="card-header">📦 قائمة المنتجات</div>
                     <div class="table-container">
                         <table class="mobile-table">
-                            <thead style="background: #f5f7fb;">
-                                <tr><th>المنتج</th><th>السعر</th><th></th></tr>
-                            </thead>
+                            <thead style="background: #f5f7fb;"><tr><th>المنتج</th><th>السعر</th><th></th></tr></thead>
                             <tbody>
                                 <tr v-for="item in storeItems" :key="item.id">
-                                    <td>{{ item.name }}</td>
-                                    <td>{{ item.price.toFixed(2) }} ₴</td>
+                                    <td>{{ item.name }}</td><td>{{ item.price.toFixed(2) }} ₴</td>
                                     <td><button @click="deleteItem(item.id)" class="btn-danger btn-sm" style="width: auto;">🗑️</button></td>
                                 </tr>
                             </tbody>
@@ -483,20 +464,22 @@
                 </div>
             </div>
 
-            <!-- Expenses Page -->
+            <!-- ==================== EXPENSES PAGE ==================== -->
             <div v-if="currentPage === 'expenses'">
+                <!-- Show total expenses for month -->
+                <div class="summary-grid">
+                    <div class="summary-item expenses">
+                        <h6>📝 إجمالي المصروفات</h6>
+                        <h3>{{ totalMonthlyExpenses.toFixed(2) }} ₴</h3>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">➕ إضافة مصروف</div>
                     <div class="form-container">
-                        <div class="form-group">
-                            <input type="date" v-model="newExpense.date" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <input v-model="newExpense.description" class="form-control" placeholder="الوصف">
-                        </div>
-                        <div class="form-group">
-                            <input type="number" v-model.number="newExpense.amount" class="form-control" placeholder="المبلغ">
-                        </div>
+                        <div class="form-group"><input type="date" v-model="newExpense.date" class="form-control"></div>
+                        <div class="form-group"><input v-model="newExpense.description" class="form-control" placeholder="الوصف"></div>
+                        <div class="form-group"><input type="number" v-model.number="newExpense.amount" class="form-control" placeholder="المبلغ"></div>
                         <button @click="addExpense" class="btn-primary">➕ إضافة</button>
                     </div>
                 </div>
@@ -505,59 +488,87 @@
                     <div class="card-header">💰 قائمة المصروفات</div>
                     <div class="table-container">
                         <table class="mobile-table">
-                            <thead style="background: #f5f7fb;">
-                                <tr><th>الوصف</th><th>المبلغ</th><th></th></tr>
-                            </thead>
+                            <thead style="background: #f5f7fb;"><tr><th>التاريخ</th><th>الوصف</th><th>المبلغ</th><th></th></tr></thead>
                             <tbody>
                                 <tr v-for="expense in expenses" :key="expense.id">
-                                    <td>{{ expense.description }}</td>
+                                    <td>{{ expense.date }}</td><td>{{ expense.description }}</td>
                                     <td>{{ expense.amount.toFixed(2) }} ₴</td>
                                     <td><button @click="deleteExpense(expense.id)" class="btn-danger btn-sm" style="width: auto;">🗑️</button></td>
                                 </tr>
+                                <tr v-if="expenses.length === 0"><td colspan="4" class="text-center text-muted">لا توجد مصروفات</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Reports Page -->
+            <!-- ==================== REPORTS PAGE ==================== -->
             <div v-if="currentPage === 'reports'">
-                <div class="card">
-                    <div class="card-header">📈 التقارير</div>
-                    <div class="form-container">
-                        <div class="form-group">
-                            <label>اختر الشهر</label>
-                            <select v-model="selectedMonth" @change="loadMonthlyReport" class="form-control">
-                                <option v-for="m in months" :value="m.value">{{ m.name }}</option>
-                            </select>
-                        </div>
-                        <button @click="loadMonthlyReport" class="btn-primary mt-2">عرض التقرير</button>
-                    </div>
+                <div class="month-selector">
+                    <label>اختر الشهر</label>
+                    <select v-model="selectedMonth" @change="loadMonthlyReport">
+                        <option v-for="m in months" :value="m.value">{{ m.name }}</option>
+                    </select>
                 </div>
 
                 <div v-if="monthlySummary" class="summary-grid">
-                    <div class="summary-item sales">
-                        <h6>📊 المبيعات</h6>
-                        <h3>{{ monthlySummary.total_sales.toFixed(0) }} ₴</h3>
-                    </div>
-                    <div class="summary-item profit">
-                        <h6>💰 صافي الربح</h6>
-                        <h3>{{ monthlySummary.net_profit.toFixed(0) }} ₴</h3>
-                    </div>
+                    <div class="summary-item sales"><h6>📊 إجمالي المبيعات</h6><h3>{{ monthlySummary.total_sales.toFixed(2) }} ₴</h3></div>
+                    <div class="summary-item expenses"><h6>📝 إجمالي المصروفات</h6><h3>{{ monthlySummary.total_expenses.toFixed(2) }} ₴</h3></div>
+                    <div class="summary-item factory"><h6>🏭 تكلفة المصنع</h6><h3>{{ monthlySummary.total_factory_cost.toFixed(2) }} ₴</h3></div>
+                    <div class="summary-item profit"><h6>💵 صافي الربح</h6><h3 :class="monthlySummary.net_profit >= 0 ? 'profit-positive' : 'profit-negative'">{{ monthlySummary.net_profit.toFixed(2) }} ₴</h3></div>
                 </div>
 
                 <div v-if="monthlyData.length > 0" class="card">
-                    <div class="card-header">📋 تفاصيل الأيام</div>
+                    <div class="card-header">📋 تفاصيل كل يوم في {{ selectedMonthName }}</div>
                     <div class="table-container">
                         <table class="mobile-table">
                             <thead style="background: #f5f7fb;">
-                                <tr><th>اليوم</th><th>المبيعات</th><th>الربح</th></tr>
+                                <tr><th>التاريخ</th><th>المبيعات</th><th>المصروفات</th><th>تكلفة المصنع</th><th>صافي الربح</th></tr>
                             </thead>
                             <tbody>
-                                <tr v-for="day in monthlyData" :key="day.date">
-                                    <td>{{ day.date.slice(8,10) }}/{{ day.date.slice(5,7) }}</td>
-                                    <td>{{ day.sales.toFixed(0) }} ₴</td>
-                                    <td>:class="day.net >= 0 ? 'text-success' : 'text-danger'">{{ day.net.toFixed(0) }} ₴</td>
+                                <tr v-for="day in monthlyData" :key="day.date" :style="day.net >= 0 ? 'background: #e8f5e9' : 'background: #ffebee'">
+                                    <td><strong>{{ day.date }}</strong></td>
+                                    <td>{{ day.sales.toFixed(2) }} ₴</td>
+                                    <td>{{ day.expenses.toFixed(2) }} ₴</td>
+                                    <td>{{ (day.factory_cost || 0).toFixed(2) }} ₴</td>
+                                    <td><strong :class="day.net >= 0 ? 'profit-positive' : 'profit-negative'">{{ day.net.toFixed(2) }} ₴</strong></td>
+                                </tr>
+                                <tr style="background: #e3f2fd; font-weight: bold;">
+                                    <td>الإجمالي</td>
+                                    <td>{{ monthlySummary.total_sales.toFixed(2) }} ₴</td>
+                                    <td>{{ monthlySummary.total_expenses.toFixed(2) }} ₴</td>
+                                    <td>{{ monthlySummary.total_factory_cost.toFixed(2) }} ₴</td>
+                                    <td :class="monthlySummary.net_profit >= 0 ? 'profit-positive' : 'profit-negative'">{{ monthlySummary.net_profit.toFixed(2) }} ₴</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top Selling Products -->
+                <div v-if="topSellingItems.length > 0" class="card">
+                    <div class="card-header">🏆 أفضل المنتجات مبيعاً</div>
+                    <div class="table-container">
+                        <table class="mobile-table">
+                            <thead style="background: #f5f7fb;"><tr><th>المنتج</th><th>الكمية</th><th>الإيراد</th></tr></thead>
+                            <tbody>
+                                <tr v-for="item in topSellingItems" :key="item.name">
+                                    <td>{{ item.name }}</td><td>{{ item.total_quantity }} قطعة</td><td>{{ item.total_revenue.toFixed(2) }} ₴</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Most Used Factory Items -->
+                <div v-if="topUsedFactoryItems.length > 0" class="card">
+                    <div class="card-header">🔧 أكثر المواد استخداماً</div>
+                    <div class="table-container">
+                        <table class="mobile-table">
+                            <thead style="background: #f5f7fb;"><tr><th>المادة</th><th>الكمية المستخدمة</th><th>الوحدة</th></tr></thead>
+                            <tbody>
+                                <tr v-for="item in topUsedFactoryItems" :key="item.name">
+                                    <td>{{ item.name }}</td><td>{{ item.total_used }}</td><td>{{ item.unit }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -568,31 +579,16 @@
 
         <!-- Bottom Navigation -->
         <div class="bottom-nav">
-            <div class="nav-item" :class="{ active: currentPage === 'sales' }" @click="currentPage = 'sales'">
-                <i class="fas fa-chart-line"></i>
-                <span>مبيعات</span>
-            </div>
-            <div class="nav-item" :class="{ active: currentPage === 'factory' }" @click="currentPage = 'factory'">
-                <i class="fas fa-industry"></i>
-                <span>مصنع</span>
-            </div>
-            <div class="nav-item" :class="{ active: currentPage === 'items' }" @click="currentPage = 'items'">
-                <i class="fas fa-boxes"></i>
-                <span>منتجات</span>
-            </div>
-            <div class="nav-item" :class="{ active: currentPage === 'expenses' }" @click="currentPage = 'expenses'">
-                <i class="fas fa-money-bill-wave"></i>
-                <span>مصروفات</span>
-            </div>
-            <div class="nav-item" :class="{ active: currentPage === 'reports' }" @click="currentPage = 'reports'">
-                <i class="fas fa-chart-bar"></i>
-                <span>تقارير</span>
-            </div>
+            <div class="nav-item" :class="{ active: currentPage === 'sales' }" @click="currentPage = 'sales'"><i class="fas fa-chart-line"></i><span>مبيعات</span></div>
+            <div class="nav-item" :class="{ active: currentPage === 'factory' }" @click="currentPage = 'factory'"><i class="fas fa-industry"></i><span>مصنع</span></div>
+            <div class="nav-item" :class="{ active: currentPage === 'items' }" @click="currentPage = 'items'"><i class="fas fa-boxes"></i><span>منتجات</span></div>
+            <div class="nav-item" :class="{ active: currentPage === 'expenses' }" @click="currentPage = 'expenses'"><i class="fas fa-money-bill-wave"></i><span>مصروفات</span></div>
+            <div class="nav-item" :class="{ active: currentPage === 'reports' }" @click="currentPage = 'reports'"><i class="fas fa-chart-bar"></i><span>تقارير</span></div>
         </div>
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, onMounted, computed } = Vue;
         
         createApp({
             setup() {
@@ -600,6 +596,7 @@
                 const currentPage = ref('sales');
                 const loading = ref(true);
                 
+                // Data
                 const storeItems = ref([]);
                 const dailyItems = ref([]);
                 const todaySales = ref([]);
@@ -607,18 +604,31 @@
                 const dailyFactoryItems = ref([]);
                 const lowStockItems = ref([]);
                 const expenses = ref([]);
-                const summary = ref({ total_sales: 0, net: 0 });
+                const summary = ref({ total_sales: 0, total_expenses: 0, factory_cost: 0, net: 0 });
                 const monthlySummary = ref(null);
                 const monthlyData = ref([]);
+                const topSellingItems = ref([]);
+                const topUsedFactoryItems = ref([]);
                 
+                // Dates
                 const currentDate = ref(new Date().toISOString().split('T')[0]);
                 const factoryDate = ref(currentDate.value);
                 const expenseDate = ref(currentDate.value);
                 const selectedMonth = ref(new Date().toISOString().slice(0, 7));
+                const selectedMonthName = computed(() => {
+                    const [year, month] = selectedMonth.value.split('-');
+                    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                    return `${monthNames[parseInt(month)-1]} ${year}`;
+                });
                 
+                // Form data
                 const newItem = ref({ name: '', price: 0 });
                 const newFactoryItem = ref({ name: '', unit: 'قطعة', quantity: 0, min_quantity: 0 });
+                const addStockData = ref({ factory_item_id: '', quantity: 0 });
                 const newExpense = ref({ date: currentDate.value, description: '', amount: 0 });
+                
+                // Total monthly expenses for display
+                const totalMonthlyExpenses = ref(0);
                 
                 const months = [];
                 const currentYear = new Date().getFullYear();
@@ -626,6 +636,7 @@
                     months.push({ name: `${i} / ${currentYear}`, value: `${currentYear}-${String(i).padStart(2,'0')}` });
                 }
                 
+                // API Functions
                 const loadStoreItems = async () => {
                     try { const res = await fetch(`${API_URL}/store-items`); storeItems.value = await res.json(); } catch(e) { storeItems.value = []; }
                 };
@@ -636,7 +647,7 @@
                     try { const res = await fetch(`${API_URL}/sales?date=${currentDate.value}`); todaySales.value = await res.json(); } catch(e) { todaySales.value = []; }
                 };
                 const loadSummary = async () => {
-                    try { const res = await fetch(`${API_URL}/summary/${currentDate.value}`); summary.value = await res.json(); } catch(e) { summary.value = { total_sales: 0, net: 0 }; }
+                    try { const res = await fetch(`${API_URL}/summary/${currentDate.value}`); summary.value = await res.json(); } catch(e) { summary.value = { total_sales: 0, total_expenses: 0, factory_cost: 0, net: 0 }; }
                 };
                 const loadFactoryItems = async () => {
                     try { const res = await fetch(`${API_URL}/factory-items`); factoryItems.value = await res.json(); const lowRes = await fetch(`${API_URL}/low-stock`); lowStockItems.value = await lowRes.json(); } catch(e) { factoryItems.value = []; }
@@ -646,13 +657,28 @@
                 };
                 const loadExpenses = async () => {
                     try { const res = await fetch(`${API_URL}/expenses?date=${expenseDate.value}`); expenses.value = await res.json(); } catch(e) { expenses.value = []; }
+                    // Calculate total monthly expenses
+                    try { 
+                        const yearMonth = expenseDate.value.slice(0,7);
+                        const allExpenses = await fetch(`${API_URL}/expenses?date=${expenseDate.value}`);
+                        // For monthly total, we need all expenses in month
+                        const monthExpenses = await fetch(`${API_URL}/expenses?date=${yearMonth}-01`);
+                    } catch(e) {}
                 };
                 const loadMonthlyReport = async () => {
                     const [year, month] = selectedMonth.value.split('-');
-                    try { const res = await fetch(`${API_URL}/monthly-report/${year}/${month}`); const data = await res.json(); monthlyData.value = data.daily_data || []; monthlySummary.value = data.summary; } catch(e) {}
+                    try { 
+                        const res = await fetch(`${API_URL}/monthly-report/${year}/${month}`); 
+                        const data = await res.json(); 
+                        monthlyData.value = data.daily_data || []; 
+                        monthlySummary.value = data.summary;
+                        topSellingItems.value = data.top_selling_items || [];
+                        topUsedFactoryItems.value = data.top_used_factory_items || [];
+                    } catch(e) {}
                 };
                 const loadData = async () => { loading.value = true; await Promise.all([loadDailyItems(), loadTodaySales(), loadSummary()]); loading.value = false; };
                 
+                // Actions
                 const addItem = async () => {
                     if (!newItem.value.name || newItem.value.price <= 0) return alert('❌ الرجاء إدخال اسم المنتج وسعر صحيح');
                     try { await fetch(`${API_URL}/store-items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newItem.value) }); newItem.value = { name: '', price: 0 }; await loadStoreItems(); await loadData(); alert('✅ تم الإضافة'); } catch(e) { alert('❌ حدث خطأ'); }
@@ -668,20 +694,24 @@
                     if (!newFactoryItem.value.name) return alert('الرجاء إدخال الاسم');
                     try { await fetch(`${API_URL}/factory-items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newFactoryItem.value) }); newFactoryItem.value = { name: '', unit: 'قطعة', quantity: 0, min_quantity: 0 }; await loadFactoryItems(); alert('✅ تم الإضافة'); } catch(e) { alert('❌ حدث خطأ'); }
                 };
+                const addStock = async () => {
+                    if (!addStockData.value.factory_item_id || addStockData.value.quantity <= 0) return alert('الرجاء اختيار المادة والكمية');
+                    try { await fetch(`${API_URL}/factory-items/${addStockData.value.factory_item_id}/add-stock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: addStockData.value.quantity }) }); addStockData.value = { factory_item_id: '', quantity: 0 }; await loadFactoryItems(); await loadFactoryUsage(); alert('✅ تم إضافة المخزون'); } catch(e) { alert('❌ حدث خطأ'); }
+                };
                 const deleteFactoryItem = async (id) => {
-                    if (confirm('هل أنت متأكد من الحذف؟')) { try { await fetch(`${API_URL}/factory-items/${id}`, { method: 'DELETE' }); await loadFactoryItems(); alert('✅ تم الحذف'); } catch(e) { alert('❌ حدث خطأ'); } }
+                    if (confirm('هل أنت متأكد من حذف هذه المادة؟')) { try { await fetch(`${API_URL}/factory-items/${id}`, { method: 'DELETE' }); await loadFactoryItems(); alert('✅ تم الحذف'); } catch(e) { alert('❌ حدث خطأ'); } }
                 };
                 const recordFactoryUsage = async (item) => {
                     if (item.quantity_used < 0) item.quantity_used = 0;
-                    if (item.quantity_used > item.current_quantity) return alert('الكمية غير متوفرة');
-                    try { await fetch(`${API_URL}/factory-usage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: factoryDate.value, factory_item_id: item.id, quantity_used: item.quantity_used || 0, notes: item.notes || '' }) }); await loadFactoryUsage(); await loadFactoryItems(); alert('✅ تم التسجيل'); } catch(e) { alert('❌ حدث خطأ'); }
+                    if (item.quantity_used > item.current_quantity) return alert('الكمية غير متوفرة في المخزن');
+                    try { await fetch(`${API_URL}/factory-usage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: factoryDate.value, factory_item_id: item.id, quantity_used: item.quantity_used || 0, notes: item.notes || '' }) }); await loadFactoryUsage(); await loadFactoryItems(); alert('✅ تم تسجيل الاستخدام'); } catch(e) { alert('❌ حدث خطأ'); }
                 };
                 const addExpense = async () => {
                     if (!newExpense.value.description || newExpense.value.amount <= 0) return alert('❌ الرجاء إدخال الوصف والمبلغ');
-                    try { await fetch(`${API_URL}/expenses`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newExpense.value) }); newExpense.value = { date: currentDate.value, description: '', amount: 0 }; await loadExpenses(); if (expenseDate.value === currentDate.value) await loadSummary(); alert('✅ تم الإضافة'); } catch(e) { alert('❌ حدث خطأ'); }
+                    try { await fetch(`${API_URL}/expenses`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newExpense.value) }); newExpense.value = { date: currentDate.value, description: '', amount: 0 }; await loadExpenses(); if (expenseDate.value === currentDate.value) await loadSummary(); alert('✅ تم إضافة المصروف'); } catch(e) { alert('❌ حدث خطأ'); }
                 };
                 const deleteExpense = async (id) => {
-                    if (confirm('هل أنت متأكد من الحذف؟')) { try { await fetch(`${API_URL}/expenses/${id}`, { method: 'DELETE' }); await loadExpenses(); if (expenseDate.value === currentDate.value) await loadSummary(); alert('✅ تم الحذف'); } catch(e) { alert('❌ حدث خطأ'); } }
+                    if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) { try { await fetch(`${API_URL}/expenses/${id}`, { method: 'DELETE' }); await loadExpenses(); if (expenseDate.value === currentDate.value) await loadSummary(); alert('✅ تم الحذف'); } catch(e) { alert('❌ حدث خطأ'); } }
                 };
                 const changeDate = (days) => { const date = new Date(currentDate.value); date.setDate(date.getDate() + days); currentDate.value = date.toISOString().split('T')[0]; loadData(); };
                 const setToday = () => { currentDate.value = new Date().toISOString().split('T')[0]; loadData(); };
@@ -690,9 +720,10 @@
                 
                 return {
                     currentPage, loading, storeItems, dailyItems, todaySales, factoryItems, dailyFactoryItems, lowStockItems, expenses,
-                    summary, monthlySummary, monthlyData, currentDate, factoryDate, expenseDate, selectedMonth, months,
-                    newItem, newFactoryItem, newExpense, loadData, updateSale, addItem, deleteItem,
-                    addFactoryItem, deleteFactoryItem, recordFactoryUsage, loadFactoryUsage,
+                    summary, monthlySummary, monthlyData, topSellingItems, topUsedFactoryItems, totalMonthlyExpenses, selectedMonthName,
+                    currentDate, factoryDate, expenseDate, selectedMonth, months,
+                    newItem, newFactoryItem, addStockData, newExpense,
+                    loadData, updateSale, addItem, deleteItem, addFactoryItem, addStock, deleteFactoryItem, recordFactoryUsage, loadFactoryUsage,
                     addExpense, deleteExpense, loadExpenses, loadMonthlyReport, changeDate, setToday
                 };
             }
