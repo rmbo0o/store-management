@@ -373,106 +373,81 @@
                 </div>
             </div>
 
-            <!-- ==================== REPORTS PAGE ==================== -->
-            <div v-if="currentPage === 'reports'">
-                <!-- Month Selector Dropdown -->
-                <div class="month-selector">
-                    <label><strong>📅 اختر الشهر لعرض التقرير</strong></label>
-                    <select v-model="selectedMonth" @change="loadMonthlyReport" class="form-control mt-2">
-                        <option v-for="m in months" :value="m.value">{{ m.name }}</option>
-                    </select>
-                    <button @click="loadMonthlyReport" class="btn-primary mt-2">عرض التقرير</button>
-                </div>
+<!-- ==================== REPORTS PAGE ==================== -->
+<div v-if="currentPage === 'reports'">
+    <!-- Month Selector Dropdown -->
+    <div class="month-selector">
+        <label><strong>📅 اختر الشهر لعرض التقرير</strong></label>
+        <select v-model="selectedMonth" @change="loadMonthlyReport" class="form-control mt-2">
+            <option v-for="m in months" :value="m.value">{{ m.name }}</option>
+        </select>
+        <button @click="loadMonthlyReport" class="btn-primary mt-2">عرض التقرير</button>
+    </div>
 
-                <!-- Monthly Summary Cards -->
-                <div v-if="monthlySummary" class="summary-grid">
-                    <div class="summary-item sales">
-                        <h6>📊 إجمالي المبيعات</h6>
-                        <h3>{{ (monthlySummary.total_sales || 0).toFixed(2) }} ₴</h3>
-                    </div>
-                    <div class="summary-item expenses">
-                        <h6>📝 إجمالي المصروفات</h6>
-                        <h3>{{ (monthlySummary.total_expenses || 0).toFixed(2) }} ₴</h3>
-                    </div>
-                    <div class="summary-item factory">
-                        <h6>🏭 تكلفة المصنع</h6>
-                        <h3>{{ (monthlySummary.total_factory_cost || 0).toFixed(2) }} ₴</h3>
-                    </div>
-                    <div class="summary-item profit">
-                        <h6>💰 صافي الربح</h6>
-                        <h3 :class="(monthlySummary.net_profit || 0) >= 0 ? 'profit-positive' : 'profit-negative'">{{ (monthlySummary.net_profit || 0).toFixed(2) }} ₴</h3>
-                    </div>
-                </div>
-
-                <!-- Daily Breakdown Table - Shows each day in the month -->
-                <div v-if="monthlyData.length > 0" class="card">
-                    <div class="card-header">📋 تفاصيل كل يوم في الشهر</div>
-                    <div class="table-container">
-                        <table class="mobile-table">
-                            <thead>
-                                <tr>
-                                    <th>التاريخ</th>
-                                    <th>المبيعات</th>
-                                    <th>المصروفات</th>
-                                    <th>تكلفة المصنع</th>
-                                    <th>صافي الربح</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="day in monthlyData" :key="day.date" :style="(day.net || 0) >= 0 ? 'background: #e8f5e9' : 'background: #ffebee'">
-                                    <td><strong>{{ day.date }}</strong></td>
-                                    <td>{{ (day.sales || 0).toFixed(2) }} ₴</td>
-                                    <td>{{ (day.expenses || 0).toFixed(2) }} ₴</td>
-                                    <td>{{ (day.factory_cost || 0).toFixed(2) }} ₴</td>
-                                    <td><strong :class="(day.net || 0) >= 0 ? 'profit-positive' : 'profit-negative'">{{ (day.net || 0).toFixed(2) }} ₴</strong></td>
-                                </tr>
-                                <tr style="background: #e3f2fd; font-weight: bold;">
-                                    <td><strong>الإجمالي</strong></td>
-                                    <td><strong>{{ (monthlySummary.total_sales || 0).toFixed(2) }} ₴</strong></td>
-                                    <td><strong>{{ (monthlySummary.total_expenses || 0).toFixed(2) }} ₴</strong></td>
-                                    <td><strong>{{ (monthlySummary.total_factory_cost || 0).toFixed(2) }} ₴</strong></td>
-                                    <td :class="(monthlySummary.net_profit || 0) >= 0 ? 'profit-positive' : 'profit-negative'"><strong>{{ (monthlySummary.net_profit || 0).toFixed(2) }} ₴</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Top Selling Products -->
-                <div v-if="topSellingItems.length > 0" class="card">
-                    <div class="card-header">🏆 أفضل المنتجات مبيعاً</div>
-                    <div class="table-container">
-                        <table class="mobile-table">
-                            <thead><tr><th>المنتج</th><th>الكمية المباعة</th><th>إجمالي الإيراد</th></td></thead>
-                            <tbody>
-                                <tr v-for="item in topSellingItems" :key="item.name">
-                                    <td>{{ item.name }}</td>
-                                    <td>{{ item.total_quantity || 0 }} قطعة</td>
-                                    <td>{{ (item.total_revenue || 0).toFixed(2) }} ₴</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Most Used Factory Items -->
-                <div v-if="topUsedFactoryItems.length > 0" class="card">
-                    <div class="card-header">🔧 أكثر المواد استخداماً من المصنع</div>
-                    <div class="table-container">
-                        <table class="mobile-table">
-                            <thead><tr><th>المادة</th><th>الكمية المستخدمة</th><th>الوحدة</th></tr></thead>
-                            <tbody>
-                                <tr v-for="item in topUsedFactoryItems" :key="item.name">
-                                    <td>{{ item.name }}</td>
-                                    <td>{{ item.total_used || 0 }}</td>
-                                    <td>{{ item.unit || 'قطعة' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <!-- Monthly Summary Cards -->
+    <div v-if="monthlySummary" class="summary-grid">
+        <div class="summary-item sales">
+            <h6>📊 إجمالي المبيعات</h6>
+            <h3>{{ (monthlySummary.total_sales || 0).toFixed(2) }} ₴</h3>
         </div>
+        <div class="summary-item expenses">
+            <h6>📝 إجمالي المصروفات</h6>
+            <h3>{{ (monthlySummary.total_expenses || 0).toFixed(2) }} ₴</h3>
+        </div>
+        <div class="summary-item profit">
+            <h6>💰 صافي الربح</h6>
+            <h3 :class="(monthlySummary.net_profit || 0) >= 0 ? 'profit-positive' : 'profit-negative'">{{ (monthlySummary.net_profit || 0).toFixed(2) }} ₴</h3>
+        </div>
+    </div>
+
+    <!-- Daily Breakdown Table - Shows EVERY day in the month -->
+    <div v-if="monthlyData.length > 0" class="card">
+        <div class="card-header">📋 تفاصيل كل يوم في الشهر</div>
+        <div class="table-container">
+            <table class="mobile-table">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>المبيعات</th>
+                        <th>المصروفات</th>
+                        <th>صافي الربح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="day in monthlyData" :key="day.date" :style="(day.net || 0) >= 0 ? 'background: #e8f5e9' : 'background: #ffebee'">
+                        <td><strong>{{ day.date }}</strong></td>
+                        <td>{{ (day.sales || 0).toFixed(2) }} ₴</td>
+                        <td>{{ (day.expenses || 0).toFixed(2) }} ₴</td>
+                        <td><strong :class="(day.net || 0) >= 0 ? 'profit-positive' : 'profit-negative'">{{ (day.net || 0).toFixed(2) }} ₴</strong></td>
+                    </tr>
+                    <tr style="background: #e3f2fd; font-weight: bold;">
+                        <td><strong>الإجمالي</strong></td>
+                        <td><strong>{{ (monthlySummary.total_sales || 0).toFixed(2) }} ₴</strong></td>
+                        <td><strong>{{ (monthlySummary.total_expenses || 0).toFixed(2) }} ₴</strong></td>
+                        <td :class="(monthlySummary.net_profit || 0) >= 0 ? 'profit-positive' : 'profit-negative'"><strong>{{ (monthlySummary.net_profit || 0).toFixed(2) }} ₴</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Selling Products -->
+    <div v-if="topSellingItems.length > 0" class="card">
+        <div class="card-header">🏆 أفضل المنتجات مبيعاً</div>
+        <div class="table-container">
+            <table class="mobile-table">
+                <thead><tr><th>المنتج</th><th>الكمية</th><th>الإيراد</th></tr></thead>
+                <tbody>
+                    <tr v-for="item in topSellingItems" :key="item.name">
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.total_quantity || 0 }} قطعة</td>
+                        <td>{{ (item.total_revenue || 0).toFixed(2) }} ₴</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
         <!-- Bottom Navigation Bar -->
         <div class="bottom-nav">

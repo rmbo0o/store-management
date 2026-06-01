@@ -8,14 +8,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-
-// IMPORTANT: Serve frontend from parent directory
-const frontendPath = path.join(__dirname, '../frontend');
-app.use(express.static(frontendPath));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Serve index.html for root path
 app.get('/', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // PostgreSQL connection
@@ -203,6 +200,7 @@ app.get('/api/daily-items/:date', async (req, res) => {
   }
 });
 
+// Get sales for a specific date
 app.get('/api/sales', async (req, res) => {
   const { date } = req.query;
   try {
@@ -219,9 +217,13 @@ app.get('/api/sales', async (req, res) => {
   }
 });
 
+// Add or update sale - FIXED
 app.post('/api/sales', async (req, res) => {
   const { date, store_item_id, quantity } = req.body;
+  console.log('Saving sale:', { date, store_item_id, quantity });
+  
   try {
+    // Get item price
     const item = await pool.query('SELECT price FROM store_items WHERE id = $1', [store_item_id]);
     if (item.rows.length === 0) {
       return res.status(404).json({ error: 'Item not found' });
@@ -229,9 +231,20 @@ app.post('/api/sales', async (req, res) => {
     
     const total = item.rows[0].price * quantity;
     
-    await pool.query('DELETE FROM daily_sales WHERE date = $1 AND store_item_id = $2', [date, store_item_id]);
+    // Check if sale exists for this date and item
+    const existing = await pool.query(
+      'SELECT id FROM daily_sales WHERE date = $1 AND store_item_id = $2',
+      [date, store_item_id]
+    );
     
-    if (quantity > 0) {
+    if (existing.rows.length > 0) {
+      // Update existing
+      await pool.query(
+        'UPDATE daily_sales SET quantity = $1, total = $2 WHERE date = $3 AND store_item_id = $4',
+        [quantity, total, date, store_item_id]
+      );
+    } else {
+      // Insert new
       await pool.query(
         'INSERT INTO daily_sales (date, store_item_id, quantity, total) VALUES ($1, $2, $3, $4)',
         [date, store_item_id, quantity, total]
@@ -240,6 +253,7 @@ app.post('/api/sales', async (req, res) => {
     
     res.json({ success: true, total });
   } catch (err) {
+    console.error('Error saving sale:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -368,82 +382,81 @@ app.get('/api/summary/:date', async (req, res) => {
   try {
     const sales = await pool.query('SELECT COALESCE(SUM(total), 0) as total_sales FROM daily_sales WHERE date = $1', [date]);
     const expenses = await pool.query('SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses WHERE date = $1', [date]);
-    const factoryCost = await pool.query(`
-      SELECT COALESCE(SUM(fi.price * fu.quantity_used), 0) as factory_cost
-      FROM factory_usage fu
-      JOIN factory_items fi ON fu.factory_item_id = fi.id
-      WHERE fu.date = $1
-    `, [date]);
     
     res.json({
-      total_sales: sales.rows[0]?.total_sales || 0,
-      total_expenses: expenses.rows[0]?.total_expenses || 0,
-      factory_cost: factoryCost.rows[0]?.factory_cost || 0,
-      net: (sales.rows[0]?.total_sales || 0) - (expenses.rows[0]?.total_expenses || 0) - (factoryCost.rows[0]?.factory_cost || 0)
+      total_sales: parseFloat(sales.rows[0]?.total_sales || 0),
+      total_expenses: parseFloat(expenses.rows[0]?.total_expenses || 0),
+      factory_cost: 0,
+      net: parseFloat(sales.rows[0]?.total_sales || 0) - parseFloat(expenses.rows[0]?.total_expenses || 0)
     });
   } catch (err) {
     res.json({ total_sales: 0, total_expenses: 0, factory_cost: 0, net: 0 });
   }
 });
 
-// ==================== MONTHLY REPORT API ====================
+// ==================== MONTHLY REPORT API - Shows every day in month ====================
 app.get('/api/monthly-report/:year/:month', async (req, res) => {
   const { year, month } = req.params;
   const datePrefix = `${year}-${month.padStart(2, '0')}`;
   
   try {
-    const daysInMonth = new Date(year, month, 0).getDate();
+    // Get all days in the month
+    const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
     const allDates = [];
     for (let i = 1; i <= daysInMonth; i++) {
       allDates.push(`${datePrefix}-${String(i).padStart(2, '0')}`);
     }
     
+    // Get sales for each day
     const salesData = await pool.query(`
       SELECT date, COALESCE(SUM(total), 0) as daily_sales
-      FROM daily_sales WHERE date LIKE $1 GROUP BY date
+      FROM daily_sales 
+      WHERE date LIKE $1
+      GROUP BY date
     `, [`${datePrefix}%`]);
     
+    // Get expenses for each day
     const expensesData = await pool.query(`
       SELECT date, COALESCE(SUM(amount), 0) as daily_expenses
-      FROM expenses WHERE date LIKE $1 GROUP BY date
+      FROM expenses 
+      WHERE date LIKE $1
+      GROUP BY date
     `, [`${datePrefix}%`]);
     
-    const factoryData = await pool.query(`
-      SELECT fu.date, COALESCE(SUM(fi.price * fu.quantity_used), 0) as daily_cost
-      FROM factory_usage fu
-      JOIN factory_items fi ON fu.factory_item_id = fi.id
-      WHERE fu.date LIKE $1 GROUP BY fu.date
-    `, [`${datePrefix}%`]);
-    
+    // Create maps
     const salesMap = new Map();
-    salesData.rows.forEach(s => salesMap.set(s.date, s.daily_sales));
+    salesData.rows.forEach(s => salesMap.set(s.date, parseFloat(s.daily_sales)));
+    
     const expensesMap = new Map();
-    expensesData.rows.forEach(e => expensesMap.set(e.date, e.daily_expenses));
-    const factoryMap = new Map();
-    factoryData.rows.forEach(f => factoryMap.set(f.date, f.daily_cost));
+    expensesData.rows.forEach(e => expensesMap.set(e.date, parseFloat(e.daily_expenses)));
     
-    const dailyData = allDates.map(date => ({
-      date: date,
-      sales: salesMap.get(date) || 0,
-      expenses: expensesMap.get(date) || 0,
-      factory_cost: factoryMap.get(date) || 0,
-      net: (salesMap.get(date) || 0) - (expensesMap.get(date) || 0) - (factoryMap.get(date) || 0)
-    })).filter(d => d.sales > 0 || d.expenses > 0 || d.factory_cost > 0);
+    // Build daily data for EVERY day in the month
+    const dailyData = allDates.map(date => {
+      const sales = salesMap.get(date) || 0;
+      const expenses = expensesMap.get(date) || 0;
+      const net = sales - expenses;
+      return {
+        date: date,
+        sales: sales,
+        expenses: expenses,
+        factory_cost: 0,
+        net: net
+      };
+    });
     
+    // Calculate totals
     const totalSales = dailyData.reduce((sum, d) => sum + d.sales, 0);
     const totalExpenses = dailyData.reduce((sum, d) => sum + d.expenses, 0);
-    const totalFactoryCost = dailyData.reduce((sum, d) => sum + d.factory_cost, 0);
     
+    // Get top selling items
     const topItems = await pool.query(`
       SELECT si.name, COALESCE(SUM(ds.quantity), 0) as total_quantity, COALESCE(SUM(ds.total), 0) as total_revenue
-      FROM daily_sales ds JOIN store_items si ON ds.store_item_id = si.id
-      WHERE ds.date LIKE $1 GROUP BY ds.store_item_id, si.name ORDER BY total_revenue DESC LIMIT 5
-    `, [`${datePrefix}%`]);
-    
-    const topFactory = await pool.query(`
-      SELECT fi.name, fi.unit, COALESCE(SUM(fu.quantity_used), 0) as total_used
-      FROM factory_usage fu JOIN factory_items fi ON fu.factory_item_id = fi.id
-      WHERE fu.date LIKE $1 GROUP BY fu.factory_item_id, fi.name, fi.unit ORDER BY total_used DESC LIMIT 5
+      FROM daily_sales ds
+      JOIN store_items si ON ds.store_item_id = si.id
+      WHERE ds.date LIKE $1
+      GROUP BY ds.store_item_id, si.name
+      ORDER BY total_revenue DESC
+      LIMIT 5
     `, [`${datePrefix}%`]);
     
     res.json({
@@ -451,13 +464,14 @@ app.get('/api/monthly-report/:year/:month', async (req, res) => {
       summary: {
         total_sales: totalSales,
         total_expenses: totalExpenses,
-        total_factory_cost: totalFactoryCost,
-        net_profit: totalSales - totalExpenses - totalFactoryCost
+        total_factory_cost: 0,
+        net_profit: totalSales - totalExpenses
       },
       top_selling_items: topItems.rows,
-      top_used_factory_items: topFactory.rows
+      top_used_factory_items: []
     });
   } catch (err) {
+    console.error('Monthly report error:', err);
     res.json({
       daily_data: [],
       summary: { total_sales: 0, total_expenses: 0, total_factory_cost: 0, net_profit: 0 },
