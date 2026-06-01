@@ -8,7 +8,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('frontend'));
+
+// IMPORTANT: Serve frontend from parent directory
+const frontendPath = path.join(__dirname, '../frontend');
+app.use(express.static(frontendPath));
+
+// Serve index.html for root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -20,7 +28,6 @@ const pool = new Pool({
 async function initDatabase() {
   const client = await pool.connect();
   try {
-    // Store items table
     await client.query(`
       CREATE TABLE IF NOT EXISTS store_items (
         id SERIAL PRIMARY KEY,
@@ -29,7 +36,6 @@ async function initDatabase() {
       )
     `);
 
-    // Factory items table with price column
     await client.query(`
       CREATE TABLE IF NOT EXISTS factory_items (
         id SERIAL PRIMARY KEY,
@@ -41,7 +47,6 @@ async function initDatabase() {
       )
     `);
 
-    // Daily sales table
     await client.query(`
       CREATE TABLE IF NOT EXISTS daily_sales (
         id SERIAL PRIMARY KEY,
@@ -52,7 +57,6 @@ async function initDatabase() {
       )
     `);
 
-    // Factory usage table
     await client.query(`
       CREATE TABLE IF NOT EXISTS factory_usage (
         id SERIAL PRIMARY KEY,
@@ -63,7 +67,6 @@ async function initDatabase() {
       )
     `);
 
-    // Expenses table
     await client.query(`
       CREATE TABLE IF NOT EXISTS expenses (
         id SERIAL PRIMARY KEY,
@@ -147,7 +150,6 @@ app.delete('/api/factory-items/:id', async (req, res) => {
   }
 });
 
-// Add stock to factory item
 app.post('/api/factory-items/:id/add-stock', async (req, res) => {
   const { quantity } = req.body;
   try {
@@ -161,7 +163,6 @@ app.post('/api/factory-items/:id/add-stock', async (req, res) => {
   }
 });
 
-// Get low stock items
 app.get('/api/low-stock', async (req, res) => {
   try {
     const result = await pool.query(
@@ -202,7 +203,6 @@ app.get('/api/daily-items/:date', async (req, res) => {
   }
 });
 
-// Get sales for a date
 app.get('/api/sales', async (req, res) => {
   const { date } = req.query;
   try {
@@ -219,7 +219,6 @@ app.get('/api/sales', async (req, res) => {
   }
 });
 
-// Add or update sale
 app.post('/api/sales', async (req, res) => {
   const { date, store_item_id, quantity } = req.body;
   try {
@@ -271,12 +270,10 @@ app.get('/api/daily-factory/:date', async (req, res) => {
     
     res.json(result);
   } catch (err) {
-    console.error('Error in daily-factory:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Record factory usage
 app.post('/api/factory-usage', async (req, res) => {
   const { date, factory_item_id, quantity_used, notes } = req.body;
   const client = await pool.connect();
@@ -284,7 +281,6 @@ app.post('/api/factory-usage', async (req, res) => {
   try {
     await client.query('BEGIN');
     
-    // Get current quantity
     const item = await client.query('SELECT quantity FROM factory_items WHERE id = $1', [factory_item_id]);
     if (item.rows.length === 0) {
       throw new Error('Item not found');
@@ -295,7 +291,6 @@ app.post('/api/factory-usage', async (req, res) => {
       throw new Error('الكمية غير متوفرة في المخزن');
     }
     
-    // Get existing usage for this date
     const existing = await client.query(
       'SELECT quantity_used FROM factory_usage WHERE date = $1 AND factory_item_id = $2',
       [date, factory_item_id]
@@ -304,13 +299,11 @@ app.post('/api/factory-usage', async (req, res) => {
     const oldQuantity = existing.rows.length > 0 ? existing.rows[0].quantity_used : 0;
     const quantityDiff = quantity_used - oldQuantity;
     
-    // Update factory stock
     await client.query(
       'UPDATE factory_items SET quantity = quantity - $1 WHERE id = $2',
       [quantityDiff, factory_item_id]
     );
     
-    // Insert or update usage record
     if (existing.rows.length > 0) {
       await client.query(
         'UPDATE factory_usage SET quantity_used = $1, notes = $2 WHERE date = $3 AND factory_item_id = $4',
@@ -324,10 +317,9 @@ app.post('/api/factory-usage', async (req, res) => {
     }
     
     await client.query('COMMIT');
-    res.json({ success: true, message: 'تم تسجيل الاستخدام' });
+    res.json({ success: true });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Error in factory-usage:', err);
     res.status(500).json({ error: err.message });
   } finally {
     client.release();
@@ -374,14 +366,8 @@ app.delete('/api/expenses/:id', async (req, res) => {
 app.get('/api/summary/:date', async (req, res) => {
   const date = req.params.date;
   try {
-    const sales = await pool.query(
-      'SELECT COALESCE(SUM(total), 0) as total_sales FROM daily_sales WHERE date = $1',
-      [date]
-    );
-    const expenses = await pool.query(
-      'SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses WHERE date = $1',
-      [date]
-    );
+    const sales = await pool.query('SELECT COALESCE(SUM(total), 0) as total_sales FROM daily_sales WHERE date = $1', [date]);
+    const expenses = await pool.query('SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses WHERE date = $1', [date]);
     const factoryCost = await pool.query(`
       SELECT COALESCE(SUM(fi.price * fu.quantity_used), 0) as factory_cost
       FROM factory_usage fu
@@ -389,15 +375,11 @@ app.get('/api/summary/:date', async (req, res) => {
       WHERE fu.date = $1
     `, [date]);
     
-    const totalSales = sales.rows[0]?.total_sales || 0;
-    const totalExpenses = expenses.rows[0]?.total_expenses || 0;
-    const totalFactoryCost = factoryCost.rows[0]?.factory_cost || 0;
-    
     res.json({
-      total_sales: totalSales,
-      total_expenses: totalExpenses,
-      factory_cost: totalFactoryCost,
-      net: totalSales - totalExpenses - totalFactoryCost
+      total_sales: sales.rows[0]?.total_sales || 0,
+      total_expenses: expenses.rows[0]?.total_expenses || 0,
+      factory_cost: factoryCost.rows[0]?.factory_cost || 0,
+      net: (sales.rows[0]?.total_sales || 0) - (expenses.rows[0]?.total_expenses || 0) - (factoryCost.rows[0]?.factory_cost || 0)
     });
   } catch (err) {
     res.json({ total_sales: 0, total_expenses: 0, factory_cost: 0, net: 0 });
@@ -410,87 +392,58 @@ app.get('/api/monthly-report/:year/:month', async (req, res) => {
   const datePrefix = `${year}-${month.padStart(2, '0')}`;
   
   try {
-    // Get all dates in month
     const daysInMonth = new Date(year, month, 0).getDate();
     const allDates = [];
     for (let i = 1; i <= daysInMonth; i++) {
       allDates.push(`${datePrefix}-${String(i).padStart(2, '0')}`);
     }
     
-    // Get daily sales
     const salesData = await pool.query(`
       SELECT date, COALESCE(SUM(total), 0) as daily_sales
-      FROM daily_sales 
-      WHERE date LIKE $1
-      GROUP BY date
+      FROM daily_sales WHERE date LIKE $1 GROUP BY date
     `, [`${datePrefix}%`]);
     
-    // Get daily expenses
     const expensesData = await pool.query(`
       SELECT date, COALESCE(SUM(amount), 0) as daily_expenses
-      FROM expenses 
-      WHERE date LIKE $1
-      GROUP BY date
+      FROM expenses WHERE date LIKE $1 GROUP BY date
     `, [`${datePrefix}%`]);
     
-    // Get daily factory costs
     const factoryData = await pool.query(`
       SELECT fu.date, COALESCE(SUM(fi.price * fu.quantity_used), 0) as daily_cost
       FROM factory_usage fu
       JOIN factory_items fi ON fu.factory_item_id = fi.id
-      WHERE fu.date LIKE $1
-      GROUP BY fu.date
+      WHERE fu.date LIKE $1 GROUP BY fu.date
     `, [`${datePrefix}%`]);
     
-    // Create maps
     const salesMap = new Map();
     salesData.rows.forEach(s => salesMap.set(s.date, s.daily_sales));
-    
     const expensesMap = new Map();
     expensesData.rows.forEach(e => expensesMap.set(e.date, e.daily_expenses));
-    
     const factoryMap = new Map();
     factoryData.rows.forEach(f => factoryMap.set(f.date, f.daily_cost));
     
-    // Build daily data
-    const dailyData = allDates.map(date => {
-      const sales = salesMap.get(date) || 0;
-      const expenses = expensesMap.get(date) || 0;
-      const factoryCost = factoryMap.get(date) || 0;
-      return {
-        date: date,
-        sales: sales,
-        expenses: expenses,
-        factory_cost: factoryCost,
-        net: sales - expenses - factoryCost
-      };
-    }).filter(d => d.sales > 0 || d.expenses > 0 || d.factory_cost > 0);
+    const dailyData = allDates.map(date => ({
+      date: date,
+      sales: salesMap.get(date) || 0,
+      expenses: expensesMap.get(date) || 0,
+      factory_cost: factoryMap.get(date) || 0,
+      net: (salesMap.get(date) || 0) - (expensesMap.get(date) || 0) - (factoryMap.get(date) || 0)
+    })).filter(d => d.sales > 0 || d.expenses > 0 || d.factory_cost > 0);
     
-    // Calculate totals
     const totalSales = dailyData.reduce((sum, d) => sum + d.sales, 0);
     const totalExpenses = dailyData.reduce((sum, d) => sum + d.expenses, 0);
     const totalFactoryCost = dailyData.reduce((sum, d) => sum + d.factory_cost, 0);
     
-    // Get top selling items
     const topItems = await pool.query(`
       SELECT si.name, COALESCE(SUM(ds.quantity), 0) as total_quantity, COALESCE(SUM(ds.total), 0) as total_revenue
-      FROM daily_sales ds
-      JOIN store_items si ON ds.store_item_id = si.id
-      WHERE ds.date LIKE $1
-      GROUP BY ds.store_item_id, si.name
-      ORDER BY total_revenue DESC
-      LIMIT 5
+      FROM daily_sales ds JOIN store_items si ON ds.store_item_id = si.id
+      WHERE ds.date LIKE $1 GROUP BY ds.store_item_id, si.name ORDER BY total_revenue DESC LIMIT 5
     `, [`${datePrefix}%`]);
     
-    // Get top used factory items
     const topFactory = await pool.query(`
       SELECT fi.name, fi.unit, COALESCE(SUM(fu.quantity_used), 0) as total_used
-      FROM factory_usage fu
-      JOIN factory_items fi ON fu.factory_item_id = fi.id
-      WHERE fu.date LIKE $1
-      GROUP BY fu.factory_item_id, fi.name, fi.unit
-      ORDER BY total_used DESC
-      LIMIT 5
+      FROM factory_usage fu JOIN factory_items fi ON fu.factory_item_id = fi.id
+      WHERE fu.date LIKE $1 GROUP BY fu.factory_item_id, fi.name, fi.unit ORDER BY total_used DESC LIMIT 5
     `, [`${datePrefix}%`]);
     
     res.json({
@@ -505,7 +458,6 @@ app.get('/api/monthly-report/:year/:month', async (req, res) => {
       top_used_factory_items: topFactory.rows
     });
   } catch (err) {
-    console.error('Monthly report error:', err);
     res.json({
       daily_data: [],
       summary: { total_sales: 0, total_expenses: 0, total_factory_cost: 0, net_profit: 0 },
